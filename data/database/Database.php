@@ -22,6 +22,13 @@ class Database
         }
     }
 
+    /**
+     * Существует ли таблица.
+     * Если таблица не существует то возвращает пустое значение (в прямом смылсе этого слова).
+     * Иначе возвращает 1.
+     * @param string $tableName Имя таблица
+     * @return bool|PDOStatement
+     */
     public static function getTable(string $tableName): bool|PDOStatement
     {
         $conn = self::connection();
