@@ -22,17 +22,12 @@ class Database
         }
     }
 
-    /**
-     * Проверяме существование таблицы.
-     * @param $tableName string имя таблицы
-     * @return bool|PDOStatement
-     */
-    public static function getTable($tableName): bool|PDOStatement
+    public static function getTable(string $tableName): bool|PDOStatement
     {
         $conn = self::connection();
-        $query = "SELECT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME='" . self::DB_NAME . "' AND COLUMN_NAME = '" . $tableName . "')";
-        $data = $conn->prepare($query);
-        $data->execute();
-        return $data;
+        $query = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE TABLE_NAME = '" . $tableName . "')";
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
     }
 }

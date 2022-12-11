@@ -2,14 +2,27 @@
 require_once '../Database.php';
 $connection = Database::connection();
 const DB_MIGRATE_VERSIONS = 'migrate_versions';
-function getMigrationFile($connection): bool|array
+
+/**
+ * @param $connection PDO|null
+ * @return bool|array
+ */
+function getMigrationFile(?PDO $connection): bool|array
 {
     $sqlFolder = str_replace('\\', '/', realpath(dirname(__FILE__)) . '/');
     $allFiles = glob($sqlFolder . '*.sql');
     $migrateVersionsTable = Database::getTable(DB_MIGRATE_VERSIONS);
-    $firstMigration = !$migrateVersionsTable->rowCount();
+    $migrateVersionsTableValue = $migrateVersionsTable->fetch(PDO::FETCH_ASSOC);
 
-    if ($firstMigration) {
+    // если false то создаем таблицу
+    if (!$migrateVersionsTableValue['exists']) {
+        echo "Создаем таблицу " . DB_MIGRATE_VERSIONS . "\n";
+        $query = "CREATE TABLE " . DB_MIGRATE_VERSIONS . " (name varchar(255) NOT NULL)";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+    }
+
+    if (!$migrateVersionsTable->rowCount()) {
         return $allFiles;
     }
 
@@ -30,10 +43,12 @@ function getMigrationFile($connection): bool|array
 
 function migrate($connection, $file): void
 {
-    $command = "psql -U " . Database::DB_USER . " -W '" . Database::DB_USER_PASSWORD . "' -h " . Database::DB_HOST . " -d " . Database::DB_NAME . " < " . $file;
-    echo "\n";
-    echo $command . "\n";
-    popen($command, 'w');
+    //$command = "PGPASSWORD=" . Database::DB_USER_PASSWORD . " psql -U " . Database::DB_USER . " -h " . Database::DB_HOST . " -d " . Database::DB_NAME . " < " . $file;
+    //popen($command, 'w');
+
+    $sqlMigrate = file_get_contents($file);
+    $migrate = $connection->prepare($sqlMigrate);
+    $migrate->execute();
 
     $baseName = basename($file);
     $query = "insert into " . DB_MIGRATE_VERSIONS . " (name) values ('" . $baseName . "')";
@@ -50,7 +65,7 @@ if (empty($migrationFiles)) {
 
     foreach ($migrationFiles as $file) {
         migrate($connection, $file);
-        echo basename($file) . "\n";
+        echo basename($file) . " --- done.\n";
     }
-    echo "Миграция завершена.";
+    echo "Миграция завершена.\n";
 }
