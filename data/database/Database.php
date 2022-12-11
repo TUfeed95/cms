@@ -13,8 +13,8 @@ class Database
     public static function connection()
     {
         try {
-            $dns = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
-            return new PDO($dns);
+            $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
+            return new PDO($dsn);
         } catch (PDOException $e)
         {
             print "Ошибка подключения к базе данных: " . $e->getMessage();
@@ -26,7 +26,7 @@ class Database
      * Существует ли таблица.
      * Если таблица не существует то возвращает пустое значение (в прямом смылсе этого слова).
      * Иначе возвращает 1.
-     * @param string $tableName Имя таблица
+     * @param string $tableName Имя таблицы
      * @return bool|PDOStatement
      */
     public static function getTable(string $tableName): bool|PDOStatement
