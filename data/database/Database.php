@@ -5,6 +5,11 @@ class Database
     const DB_USER_PASSWORD = 'root';
     const DB_NAME = 'cms_db';
     const DB_HOST = 'database';
+
+    /**
+     * Подключение к базе данных
+     * @return PDO|void
+     */
     public static function connection()
     {
         try {
@@ -17,9 +22,17 @@ class Database
         }
     }
 
-    public static function getTable()
+    /**
+     * Проверяме существование таблицы.
+     * @param $tableName string имя таблицы
+     * @return bool|PDOStatement
+     */
+    public static function getTable($tableName): bool|PDOStatement
     {
         $conn = self::connection();
-        $query = "SELECT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME='" . Database::DB_NAME . "' AND COLUMN_NAME = '" . DB_MIGRATE_VERSIONS . "')";
+        $query = "SELECT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME='" . self::DB_NAME . "' AND COLUMN_NAME = '" . $tableName . "')";
+        $data = $conn->prepare($query);
+        $data->execute();
+        return $data;
     }
 }

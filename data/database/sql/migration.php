@@ -6,11 +6,8 @@ function getMigrationFile($connection): bool|array
 {
     $sqlFolder = str_replace('\\', '/', realpath(dirname(__FILE__)) . '/');
     $allFiles = glob($sqlFolder . '*.sql');
-
-    $query = "SELECT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME='" . Database::DB_NAME . "' AND COLUMN_NAME = '" . DB_MIGRATE_VERSIONS . "')";
-    $data = $connection->prepare($query);
-    $data->execute();
-    $firstMigration = !$data->rowCount();
+    $migrateVersionsTable = Database::getTable(DB_MIGRATE_VERSIONS);
+    $firstMigration = !$migrateVersionsTable->rowCount();
 
     if ($firstMigration) {
         return $allFiles;
