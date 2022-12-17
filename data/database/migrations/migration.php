@@ -1,7 +1,19 @@
 <?php
 require_once '../Database.php';
+require_once '../models/Users.php';
+use database\models\Users;
 $connection = Database::connection();
 const DB_MIGRATE_VERSIONS = 'migrate_versions';
+
+function init(): void
+{
+    $dateTime = new DateTime();
+    $query = Users::add();
+    $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
+    file_put_contents($nameFileMigration, $query);
+
+
+}
 
 /**
  * @param $connection PDO|null
@@ -53,7 +65,7 @@ function migrate($connection, $file): void
     $stmt = $connection->prepare($query);
     $stmt->execute();
 }
-
+init();
 $migrationFiles = getMigrationFile($connection);
 
 if (empty($migrationFiles)) {

@@ -17,7 +17,7 @@ class Database
             return new PDO($dsn);
         } catch (PDOException $e)
         {
-            print "Ошибка подключения к базе данных: " . $e->getMessage();
+            echo "Ошибка подключения к базе данных: " . $e->getMessage();
             die();
         }
     }
