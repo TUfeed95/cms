@@ -1,6 +1,13 @@
 <?php
+
+
 class Database
 {
+
+    const DB_USER = 'root';
+    const DB_USER_PASSWORD = 'root';
+    const DB_NAME = 'cms_db';
+    const DB_HOST = 'database';
 
     /**
      * Подключение к базе данных
@@ -8,13 +15,10 @@ class Database
      */
     public static function connection()
     {
-        define("DB_USER", 'root');
-        define("DB_USER_PASSWORD", 'root');
-        define("DB_NAME", 'cms_db');
-        define("DB_HOST", 'database');
+
 
         try {
-            $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", DB_HOST, DB_NAME, DB_USER, DB_USER_PASSWORD);
+            $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
             return new PDO($dsn);
         } catch (PDOException $e)
         {
@@ -61,6 +65,7 @@ class Database
      */
     public static function buildingQuery(array $columns, $tableName, $typeOfAction): string
     {
+        $sql = '';
         switch ($typeOfAction) {
             case 'createTable':
                 $sql = "CREATE TABLE " . $tableName . "( ";

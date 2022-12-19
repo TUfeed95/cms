@@ -5,7 +5,7 @@ require_once "Model.php";
 
 class Users
 {
-    public static function add(): string
+    public static function add(): ?string
     {
         $dbModel = new Model("users");
 

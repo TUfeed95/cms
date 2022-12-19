@@ -41,9 +41,9 @@ class Model
      * либо определенных колонок, либо удаление колонок.
      * TODO придумать как удалять всю таблицу.
      * @param array $listColumns
-     * @return string
+     * @return string|null
      */
-    public function createQuery(array $listColumns): string
+    public function createQuery(array $listColumns): ?string
     {
         $sql = '';
 
@@ -67,13 +67,13 @@ class Model
                     foreach ($listColumns as $columns) {
                         // добавляем только те колонки которых нет в текущей таблице.
                         if (in_array($columns, $addColumns)) {
-                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
+                            return Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
                         }
                     }
                 } else if (count($nameColumns) < count((array)$queryNameColumns)){
                     foreach ($listColumns as $columns) {
                         if (in_array($columns, $addColumns)) {
-                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
+                            return Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
                         }
                     }
                 }
@@ -81,10 +81,10 @@ class Model
         } else {
             foreach ($listColumns as $columns) {
                 if (in_array($columns, $addColumns)) {
-                    $sql = Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
+                    return Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
                 }
             }
         }
-        return $sql;
+        return null;
     }
 }
