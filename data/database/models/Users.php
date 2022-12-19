@@ -13,7 +13,7 @@ class Users
         $name = $dbModel->column('name','varchar', 255, false, 'NOT NULL');
         $login = $dbModel->column('login','varchar', 255, false, 'NOT NULL');
         $email = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
-
-        return $dbModel->createQuery(array($id, $name, $login, $email));
+        $listColumns = array($id, $name, $login, $email);
+        return $dbModel->createQuery($listColumns);
     }
 }

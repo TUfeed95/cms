@@ -58,12 +58,12 @@ class Database
 
     /**
      * Строим sql запросы
-     * @param array $columns
+     * @param $columns
      * @param $tableName
      * @param $typeOfAction
      * @return string
      */
-    public static function buildingQuery(array $columns, $tableName, $typeOfAction): string
+    public static function buildingQuery($columns, $tableName, $typeOfAction): string
     {
         $sql = '';
         switch ($typeOfAction) {

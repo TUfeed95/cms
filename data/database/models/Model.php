@@ -79,9 +79,7 @@ class Model
             }
         } else {
             foreach ($listColumns as $columns) {
-                if (in_array($columns, $addColumns)) {
-                    $sql = Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
-                }
+                $sql = Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
             }
         }
         return $sql;
