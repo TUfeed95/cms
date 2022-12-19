@@ -57,19 +57,23 @@ class Model
         if ($valueCheckTable['exists']) {
             // формируем массив с наименованием колонок из модели
             foreach ($listColumns as $column) {
-                $nameColumns += $column['name'];
+                $nameColumns = array($column['name']);
             }
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
                 // если в модели колонок больше чем в базе то добавляем, иначе удаляем
-                if (count($nameColumns) > count((array)$queryNameColumns)) {
+                echo count($nameColumns, COUNT_RECURSIVE);
+                //echo $queryNameColumns->rowCount();
+                if (count($nameColumns) > $queryNameColumns->rowCount()) {
+
                     foreach ($listColumns as $columns) {
+
                         // добавляем только те колонки которых нет в текущей таблице.
                         if (in_array($columns, $addColumns)) {
                             $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
                         }
                     }
-                } else if (count($nameColumns) < count((array)$queryNameColumns)){
+                } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     foreach ($listColumns as $columns) {
                         if (in_array($columns, $addColumns)) {
                             $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
@@ -78,9 +82,7 @@ class Model
                 }
             }
         } else {
-            foreach ($listColumns as $columns) {
-                $sql = Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
-            }
+            $sql = Database::buildingQuery($listColumns, $this->tableName, CREATE_TABLE);
         }
         return $sql;
     }

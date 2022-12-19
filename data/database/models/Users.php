@@ -13,7 +13,9 @@ class Users
         $name = $dbModel->column('name','varchar', 255, false, 'NOT NULL');
         $login = $dbModel->column('login','varchar', 255, false, 'NOT NULL');
         $email = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
-        $listColumns = array($id, $name, $login, $email);
+        $test = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
+        $test1 = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
+        $listColumns = [$id, $name, $login, $email, $test, $test1];
         return $dbModel->createQuery($listColumns);
     }
 }

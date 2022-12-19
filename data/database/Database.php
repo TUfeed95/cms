@@ -70,12 +70,21 @@ class Database
             case 'createTable':
                 $sql = "CREATE TABLE " . $tableName . "( ";
                 foreach ($columns as $column) {
+
                     switch ($column['type']) {
                         case 'serial':
-                            $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
+                            if ($column != end($columns)) {
+                                $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'] . ", ";
+                            } else {
+                                $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'] . " ";
+                            }
                             break;
                         case 'varchar':
-                            $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
+                            if ($column != end($columns)){
+                                $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'] . ", ";
+                            } else {
+                                $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'] . " ";
+                            }
                             break;
                     }
                 }
