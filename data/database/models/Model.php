@@ -17,7 +17,7 @@ class Model
     }
 
     /**
-     * Формируем маасив с данным для солоки в тадлице
+     * Формируем массив с данными о колонках
      * @param $columnName
      * @param $typeColumn
      * @param $size
@@ -46,7 +46,6 @@ class Model
     public function createQuery(array $listColumns): ?string
     {
         $sql = '';
-
         $nameColumns = [];
         $checkTable = Database::getTable($this->tableName);
         $valueCheckTable = $checkTable->fetch(PDO::FETCH_ASSOC);
@@ -67,13 +66,13 @@ class Model
                     foreach ($listColumns as $columns) {
                         // добавляем только те колонки которых нет в текущей таблице.
                         if (in_array($columns, $addColumns)) {
-                            return Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
+                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
                         }
                     }
                 } else if (count($nameColumns) < count((array)$queryNameColumns)){
                     foreach ($listColumns as $columns) {
                         if (in_array($columns, $addColumns)) {
-                            return Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
+                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
                         }
                     }
                 }
@@ -81,10 +80,10 @@ class Model
         } else {
             foreach ($listColumns as $columns) {
                 if (in_array($columns, $addColumns)) {
-                    return Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
+                    $sql = Database::buildingQuery($columns, $this->tableName, CREATE_TABLE);
                 }
             }
         }
-        return null;
+        return $sql;
     }
 }

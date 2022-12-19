@@ -70,21 +70,19 @@ class Database
             case 'createTable':
                 $sql = "CREATE TABLE " . $tableName . "( ";
                 foreach ($columns as $column) {
-                    if ($column != end($columns)){
-                        switch ($column['type']) {
-                            case 'serial':
-                                $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
-                                break;
-                            case 'varchar':
-                                $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
-                                break;
-                        }
+                    switch ($column['type']) {
+                        case 'serial':
+                            $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
+                            break;
+                        case 'varchar':
+                            $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
+                            break;
                     }
                 }
                 $sql .= ");";
                 break;
             case 'deleteTable':
-                $sql = "DELETE FROM " . $tableName;
+                $sql = ' ';
                 break;
             case 'alterTableAdd':
                 foreach ($columns as $column) {
