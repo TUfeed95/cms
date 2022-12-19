@@ -8,9 +8,12 @@ class Users
     public static function add(): string
     {
         $dbModel = new Model("users");
-        $id = $dbModel->column('id','serial', false,true);
-        $name = $dbModel->column('name','varchar(255)', true);
-        $login = $dbModel->column('login','varchar(255)', true);
-        return $dbModel->createSqlRequest(array($id, $name, $login));
+
+        $id = $dbModel->column('id','serial', null,'PRIMARY KEY');
+        $name = $dbModel->column('name','varchar', 255, false, 'NOT NULL');
+        $login = $dbModel->column('login','varchar', 255, false, 'NOT NULL');
+        $email = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
+
+        return $dbModel->createSqlRequest(array($id, $name, $login, $email));
     }
 }

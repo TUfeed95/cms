@@ -37,4 +37,29 @@ class Database
         $stmt->execute();
         return $stmt;
     }
+
+    /**
+     * @param $tableName
+     * @return bool|PDOStatement
+     */
+    public static function getColumns($tableName): bool|PDOStatement
+    {
+        $conn = self::connection();
+        $query = "SELECT column_name FROM information_schema.columns WHERE table_name = '" . $tableName . "'";
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public static function column(array $columns): string
+    {
+        switch ($columns['typeColumn'])
+        {
+            case 'serial':
+                return sprintf("%s %s %s", $columns['columnName'], $columns['typeColumn'], $columns['primaryKey']);
+            case 'varchar':
+                return sprintf("%s %s(%s) %s", $columns['columnName'], $columns['typeColumn'], $columns['size'], $columns['notNull']);
+        }
+        return '';
+    }
 }

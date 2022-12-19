@@ -1,7 +1,9 @@
 <?php
 require_once '../Database.php';
 require_once '../models/Users.php';
+
 use database\models\Users;
+
 $connection = Database::connection();
 const DB_MIGRATE_VERSIONS = 'migrate_versions';
 
@@ -10,8 +12,13 @@ function init(): void
     $dateTime = new DateTime();
     $query = Users::add();
     $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
-    file_put_contents($nameFileMigration, $query);
-
+    echo "Инициализация миграций.\n";
+    try {
+        file_put_contents($nameFileMigration, $query);
+        echo "Создан файл миграции: " . $nameFileMigration . "\n";
+    } catch (Exception $exception) {
+        echo "Ошибка при создании фала миграции: " . $exception  . "\n";
+    }
 
 }
 
@@ -54,17 +61,24 @@ function getMigrationFile(?PDO $connection): bool|array
     return array_diff($allFiles, $versionsFile);
 }
 
-function migrate($connection, $file): void
+function migrate($connection, $file): bool
 {
     $sqlMigrate = file_get_contents($file);
-    $migrate = $connection->prepare($sqlMigrate);
-    $migrate->execute();
+    try {
+        $migrate = $connection->prepare($sqlMigrate);
+        $migrate->execute();
+    } catch (PDOException $exception) {
+        echo "Во время миграции произошла ошибка: " . $exception . "\n";
+        return false;
+    }
 
     $baseName = basename($file);
     $query = "insert into " . DB_MIGRATE_VERSIONS . " (name) values ('" . $baseName . "')";
     $stmt = $connection->prepare($query);
     $stmt->execute();
+    return true;
 }
+
 init();
 $migrationFiles = getMigrationFile($connection);
 
@@ -72,10 +86,10 @@ if (empty($migrationFiles)) {
     echo "Новых миграций не найдено.\n";
 } else {
     echo "Начинаеи миграцию...\n";
-
     foreach ($migrationFiles as $file) {
-        migrate($connection, $file);
-        echo basename($file) . " --- ОК.\n";
+        if (migrate($connection, $file)) {
+            echo basename($file) . " --- ОК.\n";
+        }
+        echo "Миграция завершена.\n";
     }
-    echo "Миграция завершена.\n";
 }
