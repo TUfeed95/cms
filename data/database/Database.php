@@ -1,10 +1,6 @@
 <?php
 class Database
 {
-    const DB_USER = 'root';
-    const DB_USER_PASSWORD = 'root';
-    const DB_NAME = 'cms_db';
-    const DB_HOST = 'database';
 
     /**
      * Подключение к базе данных
@@ -12,8 +8,13 @@ class Database
      */
     public static function connection()
     {
+        define("DB_USER", 'root');
+        define("DB_USER_PASSWORD", 'root');
+        define("DB_NAME", 'cms_db');
+        define("DB_HOST", 'database');
+
         try {
-            $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
+            $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", DB_HOST, DB_NAME, DB_USER, DB_USER_PASSWORD);
             return new PDO($dsn);
         } catch (PDOException $e)
         {
@@ -51,15 +52,48 @@ class Database
         return $stmt;
     }
 
-    public static function column(array $columns): string
+    /**
+     * Строим sql запросы
+     * @param array $columns
+     * @param $tableName
+     * @param $typeOfAction
+     * @return string
+     */
+    public static function buildingQuery(array $columns, $tableName, $typeOfAction): string
     {
-        switch ($columns['typeColumn'])
-        {
-            case 'serial':
-                return sprintf("%s %s %s", $columns['columnName'], $columns['typeColumn'], $columns['primaryKey']);
-            case 'varchar':
-                return sprintf("%s %s(%s) %s", $columns['columnName'], $columns['typeColumn'], $columns['size'], $columns['notNull']);
+        switch ($typeOfAction) {
+            case 'createTable':
+                $sql = "CREATE TABLE " . $tableName . "( ";
+                foreach ($columns as $column) {
+                    if ($column != end($columns)){
+                        switch ($column['type']) {
+                            case 'serial':
+                                $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
+                                break;
+                            case 'varchar':
+                                $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
+                                break;
+                        }
+                    }
+                }
+                $sql .= ");";
+                break;
+            case 'deleteTable':
+                $sql = "DELETE FROM " . $tableName;
+                break;
+            case 'alterTableAdd':
+                foreach ($columns as $column) {
+                    $sql = "ALTER TABLE " . $tableName . " ADD COLUMN " . $column['name'] . " " .
+                        $column['type'] . "( " . $column['size'] . " );\n";
+                }
+                break;
+            case 'alterTableDrop':
+                foreach ($columns as $column) {
+                    $sql = "ALTER TABLE " . $tableName . " DROP COLUMN " . $column['name'] . "\n";
+                }
+                break;
         }
-        return '';
+
+        return $sql;
     }
 }

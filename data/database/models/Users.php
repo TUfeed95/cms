@@ -14,6 +14,6 @@ class Users
         $login = $dbModel->column('login','varchar', 255, false, 'NOT NULL');
         $email = $dbModel->column('email','varchar', 255, false, 'NOT NULL');
 
-        return $dbModel->createSqlRequest(array($id, $name, $login, $email));
+        return $dbModel->createQuery(array($id, $name, $login, $email));
     }
 }
