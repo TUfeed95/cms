@@ -11,14 +11,19 @@ function init(): void
 {
     $dateTime = new DateTime();
     $query = Users::add();
-    $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
-    echo "Инициализация миграций.\n";
-    try {
-        file_put_contents($nameFileMigration, $query);
-        echo "Создан файл миграции: " . $nameFileMigration . "\n";
-    } catch (Exception $exception) {
-        echo "Ошибка при создании фала миграции: " . $exception  . "\n";
+    if ($query) {
+        $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
+        echo "Инициализация миграций.\n";
+        try {
+            file_put_contents($nameFileMigration, $query);
+            echo "Создан файл миграции: " . $nameFileMigration . "\n";
+        } catch (Exception $exception) {
+            echo "Ошибка при создании фала миграции: " . $exception  . "\n";
+        }
     }
+
+
+
 
 }
 
@@ -85,7 +90,7 @@ $migrationFiles = getMigrationFile($connection);
 if (empty($migrationFiles)) {
     echo "Новых миграций не найдено.\n";
 } else {
-    echo "Начинаеи миграцию...\n";
+    echo "Начинаем миграцию...\n";
     foreach ($migrationFiles as $file) {
         if (migrate($connection, $file)) {
             echo basename($file) . " --- ОК.\n";

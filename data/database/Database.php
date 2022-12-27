@@ -94,15 +94,22 @@ class Database
                 $sql = ' ';
                 break;
             case 'alterTableAdd':
+                $sql = "ALTER TABLE "  . $tableName;
                 foreach ($columns as $column) {
-                    $sql = "ALTER TABLE " . $tableName . " ADD COLUMN " . $column['name'] . " " .
-                        $column['type'] . "( " . $column['size'] . " );\n";
+                    if ($column != end($columns)) {
+                        $sql .= " ADD COLUMN " . $column['name'] . " " .
+                            $column['type'] . "(" . $column['size'] . "), ";
+                    } else {
+                        $sql .= " ADD COLUMN " . $column['name'] . " " .
+                            $column['type'] . "(" . $column['size'] . "); ";
+                    }
+
                 }
                 break;
             case 'alterTableDrop':
-                foreach ($columns as $column) {
-                    $sql = "ALTER TABLE " . $tableName . " DROP COLUMN " . $column['name'] . "\n";
-                }
+
+                $sql = "ALTER TABLE " . $tableName . " DROP COLUMN " . $columns['name'] . "\n";
+
                 break;
         }
 

@@ -47,39 +47,44 @@ class Model
     {
         $sql = '';
         $nameColumns = [];
+        $queryAllNameColumns = [];
         $checkTable = Database::getTable($this->tableName);
         $valueCheckTable = $checkTable->fetch(PDO::FETCH_ASSOC);
         // получаем текущее состояние таблицы
         $queryNameColumns = Database::getColumns($this->tableName);
-        // сравниваем колонки текушей таблицы и модели и получаем разницу
-        $addColumns = array_diff((array)$queryNameColumns, $nameColumns);
+        $queryNameColumnsRows = $queryNameColumns->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($queryNameColumnsRows as $row) {
+            $queryAllNameColumns[] = $row['column_name'];
+        }
         // если таблица существует то добавляем новые колонки
         if ($valueCheckTable['exists']) {
             // формируем массив с наименованием колонок из модели
             foreach ($listColumns as $column) {
-                $nameColumns = array($column['name']);
+                $nameColumns[] = $column['name'];
             }
+            // сравниваем колонки текушей таблицы и модели и получаем разницу
+            $addColumns = array_diff($nameColumns, $queryAllNameColumns);
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
                 // если в модели колонок больше чем в базе то добавляем, иначе удаляем
-                echo count($nameColumns, COUNT_RECURSIVE);
-                //echo $queryNameColumns->rowCount();
                 if (count($nameColumns) > $queryNameColumns->rowCount()) {
-
+                    $columnRows = [];
                     foreach ($listColumns as $columns) {
-
                         // добавляем только те колонки которых нет в текущей таблице.
-                        if (in_array($columns, $addColumns)) {
-                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_ADD);
+                        if (in_array($columns['name'], $addColumns)) {
+                            $columnRows[] = $columns;
                         }
                     }
+                    $sql .= Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     foreach ($listColumns as $columns) {
-                        if (in_array($columns, $addColumns)) {
+                        if (in_array($addColumns, $columns)) {
                             $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
                         }
                     }
                 }
+            } else {
+                return false;
             }
         } else {
             $sql = Database::buildingQuery($listColumns, $this->tableName, CREATE_TABLE);
