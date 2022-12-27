@@ -93,6 +93,7 @@ class Database
             case 'deleteTable':
                 $sql = ' ';
                 break;
+                // добавляем столбцы
             case 'alterTableAdd':
                 $sql = "ALTER TABLE "  . $tableName;
                 foreach ($columns as $column) {
@@ -106,6 +107,7 @@ class Database
 
                 }
                 break;
+                // удаляем столбцы
             case 'alterTableDrop':
                 $sql = "ALTER TABLE " . $tableName;
                 foreach ($columns as $column) {
@@ -117,7 +119,6 @@ class Database
                 }
                 break;
         }
-
         return $sql;
     }
 }

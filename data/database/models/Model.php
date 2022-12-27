@@ -65,8 +65,10 @@ class Model
             // сравниваем колонки текушей таблицы и модели и получаем разницу
             $addColumns = [];
             if (count($nameColumns) > count($queryAllNameColumns)) {
+                // если в модели есть новые столбцы
                 $addColumns = array_diff($nameColumns, $queryAllNameColumns);
             } else {
+                // если в модели были удалены столбцы
                 $addColumns = array_diff($queryAllNameColumns, $nameColumns);
             }
 
@@ -87,6 +89,7 @@ class Model
                     $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     $columnRows = [];
+                    // удаляем колонки которых нет в модели, для этого формируем маасив с наименование столбцов из базы
                     foreach ($addColumns as $column) {
                         $columnRows[] = $column;
                     }
