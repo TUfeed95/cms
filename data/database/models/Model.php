@@ -63,7 +63,16 @@ class Model
                 $nameColumns[] = $column['name'];
             }
             // сравниваем колонки текушей таблицы и модели и получаем разницу
-            $addColumns = array_diff($nameColumns, $queryAllNameColumns);
+            $addColumns = [];
+            if (count($nameColumns) > count($queryAllNameColumns)) {
+                $addColumns = array_diff($nameColumns, $queryAllNameColumns);
+            } else {
+                $addColumns = array_diff($queryAllNameColumns, $nameColumns);
+            }
+
+            print_r($nameColumns);
+            print_r($queryAllNameColumns);
+            print_r($addColumns);
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
                 // если в модели колонок больше чем в базе то добавляем, иначе удаляем
@@ -75,16 +84,16 @@ class Model
                             $columnRows[] = $columns;
                         }
                     }
-                    $sql .= Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
+                    $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
-                    foreach ($listColumns as $columns) {
-                        if (in_array($addColumns, $columns)) {
-                            $sql = Database::buildingQuery($columns, $this->tableName, ALTER_TABLE_DROP);
-                        }
+                    $columnRows = [];
+                    foreach ($addColumns as $column) {
+                        $columnRows[] = $column;
                     }
+                    $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_DROP);
                 }
             } else {
-                return false;
+                return null;
             }
         } else {
             $sql = Database::buildingQuery($listColumns, $this->tableName, CREATE_TABLE);

@@ -11,7 +11,7 @@ function init(): void
 {
     $dateTime = new DateTime();
     $query = Users::add();
-    if ($query) {
+    if (!is_null($query)) {
         $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
         echo "Инициализация миграций.\n";
         try {

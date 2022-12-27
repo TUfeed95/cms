@@ -107,9 +107,14 @@ class Database
                 }
                 break;
             case 'alterTableDrop':
-
-                $sql = "ALTER TABLE " . $tableName . " DROP COLUMN " . $columns['name'] . "\n";
-
+                $sql = "ALTER TABLE " . $tableName;
+                foreach ($columns as $column) {
+                    if ($column != end($columns)) {
+                        $sql .= " DROP COLUMN " . $column . ", ";
+                    } else {
+                        $sql .= " DROP COLUMN " . $column;
+                    }
+                }
                 break;
         }
 
