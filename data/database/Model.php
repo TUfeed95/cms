@@ -1,13 +1,7 @@
 <?php
 require_once "Database.php";
-const CREATE_TABLE = 'createTable';
-const DELETE_TABLE = 'deleteTable';
-const ALTER_TABLE_ADD = 'alterTableAdd';
-const ALTER_TABLE_DROP = 'alterTableDrop';
 class Model
 {
-
-
     function __construct(public $tableName)
     {
 
@@ -43,21 +37,24 @@ class Model
     public function createQuery(array $listColumns): ?string
     {
         $sql = '';
-        $nameColumns = [];
-        $queryAllNameColumns = [];
-        $checkTable = Database::getTable($this->tableName);
-        $valueCheckTable = $checkTable->fetch(PDO::FETCH_ASSOC);
+
         // получаем текущее состояние таблицы
         $queryNameColumns = Database::getColumns($this->tableName);
         $queryNameColumnsRows = $queryNameColumns->fetchAll(PDO::FETCH_ASSOC);
+
+        $queryAllNameColumns = [];
         foreach ($queryNameColumnsRows as $row) {
-            $queryAllNameColumns[] = $row['column_name'];
+            $queryAllNameColumns[] = $row['column_name']; // массив с наименованием колонок из базы
         }
+
         // если таблица существует то добавляем новые колонки
+        $checkTable = Database::getTable($this->tableName);
+        $valueCheckTable = $checkTable->fetch(PDO::FETCH_ASSOC);
         if ($valueCheckTable['exists']) {
             // формируем массив с наименованием колонок из модели
+            $nameColumns = [];
             foreach ($listColumns as $column) {
-                $nameColumns[] = $column['name'];
+                $nameColumns[] = $column['name']; // массив с наименованием колонок из модели
             }
             // сравниваем колонки текушей таблицы и модели и получаем разницу
             $addColumns = [];
@@ -68,12 +65,10 @@ class Model
                 // если в модели были удалены столбцы
                 $addColumns = array_diff($queryAllNameColumns, $nameColumns);
             }
-            print_r($nameColumns);
-            print_r($queryAllNameColumns);
-            print_r($addColumns);
+
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
-                // если в модели колонок больше чем в базе то добавляем, иначе удаляем
+                // если в модели колонок больше, чем в базе то добавляем...
                 if (count($nameColumns) > $queryNameColumns->rowCount()) {
                     $columnRows = [];
                     foreach ($listColumns as $columns) {
@@ -82,20 +77,21 @@ class Model
                             $columnRows[] = $columns;
                         }
                     }
-                    $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
+                    $sql = Database::addColumns($this->tableName, $columnRows);
+                    // ...иначе удаляем
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     $columnRows = [];
                     // удаляем колонки которых нет в модели, для этого формируем массив с наименование столбцов из базы
                     foreach ($addColumns as $column) {
                         $columnRows[] = $column;
                     }
-                    $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_DROP);
+                    $sql = Database::removeColumns($this->tableName, $columnRows);
                 }
             } else {
                 return null;
             }
         } else {
-            $sql = Database::buildingQuery($listColumns, $this->tableName, CREATE_TABLE);
+            $sql = Database::createTable($this->tableName, $listColumns);
         }
         return $sql;
     }
