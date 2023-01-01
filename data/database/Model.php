@@ -65,10 +65,10 @@ class Model
                 // если в модели были удалены столбцы
                 $addColumns = array_diff($queryAllNameColumns, $nameColumns);
             }
-
+            // если есть разница
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
-                // если в модели колонок больше, чем в базе то добавляем...
+                // если в модели колонок больше, чем в базе, то добавляем...
                 if (count($nameColumns) > $queryNameColumns->rowCount()) {
                     $columnRows = [];
                     foreach ($listColumns as $columns) {
@@ -81,7 +81,7 @@ class Model
                     // ...иначе удаляем
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     $columnRows = [];
-                    // удаляем колонки которых нет в модели, для этого формируем массив с наименование столбцов из базы
+                    // удаляем колонки которых нет в модели, для этого формируем массив с наименованием столбцов из базы
                     foreach ($addColumns as $column) {
                         $columnRows[] = $column;
                     }
