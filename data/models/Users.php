@@ -6,7 +6,6 @@ require_once "../database/Model.php";
 
 class Users
 {
-
     public static function columns(): ?string
     {
         $dbModel = new Model('users');

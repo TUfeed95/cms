@@ -32,13 +32,13 @@ class Migration
     }
 
     /**
-     * Создания фалов миграций
+     * Создания файлов миграций
      * @return void
      */
-    function init(): void
+    function createMigrationFiles(): void
     {
         $dateTime = new DateTime();
-        $query = Users::add();
+        $query = Users::columns();
 
         if (!is_null($query)) {
             $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
@@ -57,11 +57,10 @@ class Migration
      */
     function getMigrationFile(): bool|array
     {
-        self::init();
+        self::createMigrationFiles();
         $connection = Database::connection();
         $sqlFolder = self::getFolder('/migrations');
         // файлы миграций
-        //$allFiles = glob($sqlFolder . '*.sql');
         $allFiles = self::getFiles('/migrations', '*.sql');
         // проверяем наличие таблицы DB_MIGRATE_VERSIONS
         $migrateVersionsTable = Database::getTable(self::DB_MIGRATE_VERSIONS);

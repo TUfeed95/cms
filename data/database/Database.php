@@ -27,7 +27,7 @@ class Database
 
     /**
      * Существует ли таблица.
-     * Если таблица не существует то возвращает пустое значение (в прямом смылсе этого слова).
+     * Если таблица не существует то возвращает пустое значение (в прямом смысле этого слова).
      * Иначе возвращает 1.
      * @param string $tableName Имя таблицы
      * @return bool|PDOStatement
@@ -62,21 +62,21 @@ class Database
      */
     public static function createTable(string $name, array $columns): string
     {
-        $sql = "CREATE TABLE " . $name . "( ";
+        $sql = "CREATE TABLE " . $name . " (";
         foreach ($columns as $column) {
             switch ($column['type']) {
                 case 'serial':
                     if ($column != end($columns)) {
                         $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'] . ", ";
                     } else {
-                        $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'] . " ";
+                        $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
                     }
                     break;
                 case 'varchar':
                     if ($column != end($columns)){
                         $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'] . ", ";
                     } else {
-                        $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'] . " ";
+                        $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
                     }
                     break;
             }
