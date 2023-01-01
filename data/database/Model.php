@@ -1,8 +1,5 @@
 <?php
 
-namespace database\models;
-use Database;
-use PDO;
 const CREATE_TABLE = 'createTable';
 const DELETE_TABLE = 'deleteTable';
 const ALTER_TABLE_ADD = 'alterTableAdd';
@@ -71,7 +68,6 @@ class Model
                 // если в модели были удалены столбцы
                 $addColumns = array_diff($queryAllNameColumns, $nameColumns);
             }
-
             print_r($nameColumns);
             print_r($queryAllNameColumns);
             print_r($addColumns);
@@ -89,7 +85,7 @@ class Model
                     $sql = Database::buildingQuery($columnRows, $this->tableName, ALTER_TABLE_ADD);
                 } else if (count($nameColumns) < $queryNameColumns->rowCount()){
                     $columnRows = [];
-                    // удаляем колонки которых нет в модели, для этого формируем маасив с наименование столбцов из базы
+                    // удаляем колонки которых нет в модели, для этого формируем массив с наименование столбцов из базы
                     foreach ($addColumns as $column) {
                         $columnRows[] = $column;
                     }

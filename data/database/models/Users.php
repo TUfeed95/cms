@@ -1,7 +1,6 @@
 <?php
 
-namespace database\models;
-require_once "Model.php";
+require_once "../Model.php";
 
 class Users
 {

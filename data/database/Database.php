@@ -1,6 +1,5 @@
 <?php
 
-
 class Database
 {
 
@@ -15,7 +14,6 @@ class Database
      */
     public static function connection()
     {
-
 
         try {
             $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
