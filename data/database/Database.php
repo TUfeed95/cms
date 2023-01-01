@@ -14,7 +14,6 @@ class Database
      */
     public static function connection()
     {
-
         try {
             $dsn = sprintf("pgsql:host='%s';port=5432;dbname='%s';user='%s';password='%s'", self::DB_HOST, self::DB_NAME, self::DB_USER, self::DB_USER_PASSWORD);
             return new PDO($dsn);
@@ -42,6 +41,7 @@ class Database
     }
 
     /**
+     * Получаем колонки переданной таблицы
      * @param $tableName
      * @return bool|PDOStatement
      */
@@ -55,14 +55,14 @@ class Database
     }
 
     /**
-     * Создаем таблицу
-     * @param $name string наименование таблицы
+     * Создаем таблицу (sql запрос)
+     * @param $tableName string наименование таблицы
      * @param $columns array колонки
      * @return string
      */
-    public static function createTable(string $name, array $columns): string
+    public static function createTable(string $tableName, array $columns): string
     {
-        $sql = "CREATE TABLE " . $name . " (";
+        $sql = "CREATE TABLE " . $tableName . " (";
         foreach ($columns as $column) {
             switch ($column['type']) {
                 case 'serial':
@@ -86,7 +86,7 @@ class Database
     }
 
     /**
-     * Добавляем колонки
+     * Добавляем колонки (sql запрос)
      * @param $tableName string наименование таблицы
      * @param $columns array колонки
      * @return string
@@ -107,7 +107,7 @@ class Database
     }
 
     /**
-     * Удаляем колонки
+     * Удаляем колонки (sql запрос)
      * @param $tableName string наименование таблицы
      * @param $columns array колонки
      * @return string
