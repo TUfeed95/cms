@@ -1,6 +1,7 @@
 <?php
 
 require_once "Migration.php";
+
 $migrations = new Migration();
 $migrationFiles = $migrations->getMigrationFile();
 
