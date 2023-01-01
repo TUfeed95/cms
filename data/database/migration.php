@@ -1,7 +1,9 @@
 <?php
 
+use models\Users;
+
 require_once 'Database.php';
-require_once 'models/Users.php';
+require_once '../models/Users.php';
 class Migration
 {
     // таблица миграций
@@ -42,7 +44,7 @@ class Migration
             $nameFileMigration = $dateTime->format('Y_m_d_his') . ".sql";
             echo "Инициализация миграций.\n";
             try {
-                file_put_contents($nameFileMigration, $query);
+                file_put_contents(self::getFolder('/migrations') . $nameFileMigration, $query);
                 echo "Создан файл миграции: " . $nameFileMigration . "\n";
             } catch (Exception $exception) {
                 echo "Ошибка при создании файла миграции: " . $exception  . "\n";
@@ -51,17 +53,16 @@ class Migration
     }
 
     /**
-     * @param $connection PDO|null
      * @return bool|array
      */
     function getMigrationFile(): bool|array
     {
         self::init();
         $connection = Database::connection();
-        $sqlFolder = self::getFolder('migrations');
+        $sqlFolder = self::getFolder('/migrations');
         // файлы миграций
         //$allFiles = glob($sqlFolder . '*.sql');
-        $allFiles = self::getFiles('migrations', '*.sql');
+        $allFiles = self::getFiles('/migrations', '*.sql');
         // проверяем наличие таблицы DB_MIGRATE_VERSIONS
         $migrateVersionsTable = Database::getTable(self::DB_MIGRATE_VERSIONS);
         // получаем сторку в виде массива проиндексированного по имени столбца

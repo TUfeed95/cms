@@ -1,5 +1,5 @@
 <?php
-
+require_once "Database.php";
 const CREATE_TABLE = 'createTable';
 const DELETE_TABLE = 'deleteTable';
 const ALTER_TABLE_ADD = 'alterTableAdd';
