@@ -27,4 +27,53 @@ class Model
     {
         return $this->tableName;
     }
+
+    /**
+     * Целочисленный тип данных.
+     * 
+     * Типы smallint, integer, и bigint хранят целые числа, то есть числа без дробных частей, различных диапазонов. 
+     * Попытки сохранить значения за пределами допустимого диапазона приведут к ошибке.
+     * 
+     * @param string $type Тип целочисленных данных
+     * @return string
+     */
+    public function integer($type = null): string
+    {
+        switch ($type) {
+            case 'smallint':
+                return $type;
+            case 'bigint':
+                return $type;
+            default:
+                return 'integer';
+        }
+    }
+
+    /**
+     * Тип numeric. Может хранить числа с очень большим количеством цифр.
+     * Типы decimal и numeric эквивалентны. Оба типа являются частью стандарта SQL.
+     * 
+     * @param integer $precision Общее количество значащих цифр в целом числе, то есть количество цифр по обе стороны от десятичной точки. По умолчанию 0.
+     * @param integer $scale Количество десятичных цифр в дробной части справа от десятичной точки. По умолчанию 0.
+     */
+    public function numeric($precision = 0, $scale = 0) 
+    {
+        if ($precision >= 0 && $scale >= 0) {
+            return sprintf('numeric(%s, %s)', $precision, $scale);
+        }
+    }
+
+    /**
+     * Типы данных real и double precision являются неточными числовыми типами переменной точности.
+     * 
+     * @param boolean $doublePrecision Двойная точность, по умолчанию false.
+     */
+    public function real($doublePrecision = false) 
+    {
+        if (!$doublePrecision) {
+            return 'real';
+        } else {
+            return 'double precision';
+        }
+    }
 }

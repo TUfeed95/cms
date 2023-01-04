@@ -33,14 +33,18 @@ class Migration
         return str_replace('\\', '/', realpath($dirname . $folder . '/'));
     }
 
+    /**
+     * Загрузка класса моделей
+     * @param $classNames
+     */
     function createLoadClassesFile($classNames): void
     {
-        //$classNames = self::getFiles('/models', '*.php', dirname(__DIR__));
         $create_require_once = "<?php\n";
 
         foreach ($classNames as $className) {
             $create_require_once .= "require_once '../models/" . basename($className) . "';\n";
         }
+
         file_put_contents(self::getFolder('', dirname(__FILE__)) . '/loadModels.php', $create_require_once);
     }
 
@@ -56,7 +60,8 @@ class Migration
         // получем список моделей
         $models = self::getFiles('/models', '*.php', dirname(__DIR__));
         //print_r($models);
-        require_once 'loadModels.php';
+        require_once 'loadModels.php'; // загружаем здесь, что бы не было ошибки, при котрой отсутсвует загруженный класс модели
+        // обходим модели и создаем файлы миграций
         foreach ($models as $model) {
             $modelClass = new ReflectionClass(basename($model, '.php')); // получаем класс модели
             $modelClassColumns = $modelClass->newInstanceArgs(); // создаем экземпляр класса модели
@@ -66,7 +71,10 @@ class Migration
             // если запрос не пустой
             if (!is_null($query)) {
                 echo "  => Найдена модель: " . basename($model, ".php") . "\n";
-                $rangeText = substr(md5('327CH4jHISdwJ77F' . basename($model, '.php')), 0, 10); // генерация случайных шестнадцатеричных строк
+                // генерация случайных шестнадцатеричных строк, для уникальности имени файла миграции
+                // для более случайной генерции добавляем имя модели, иначе если создается несколько файлов миграций с одинаковым именем
+                $rangeText = substr(md5('327CH4jHISdwJ77F' . basename($model, '.php')), 0, 10); 
+                // имя файла миграции, сотоит из текущей даты, времени и случайной строки
                 $nameFileMigration = $dateTime->format('Y_m_d_his') . "_" . $rangeText . ".sql";
                 try {
                     file_put_contents(self::getFolder('/migrations', dirname(__FILE__)) . '/' . $nameFileMigration, $query);

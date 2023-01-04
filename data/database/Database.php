@@ -56,8 +56,8 @@ class Database
 
     /**
      * Создаем таблицу (sql запрос)
-     * @param $tableName string наименование таблицы
-     * @param $columns array колонки
+     * @param $tableName наименование таблицы
+     * @param $columns колонки
      * @return string
      */
     public static function createTable(string $tableName, array $columns): string

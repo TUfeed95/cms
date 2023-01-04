@@ -4,13 +4,9 @@ require_once "Migration.php";
 
 $migrations = new Migration();
 
+// создаем файл загрузки моделей
 $classNames = $migrations->getFiles('/models', '*.php', dirname(__DIR__));
-$create_require_once = "<?php\n";
-
-foreach ($classNames as $className) {
-    $create_require_once .= "require_once '../models/" . basename($className) . "';\n";
-}
-file_put_contents($migrations->getFolder('', dirname(__FILE__)) . '/loadModels.php', $create_require_once);
+$migrations->createMigrationFiles($classNames);
 
 try {
     $migrations->createMigrationFiles();
