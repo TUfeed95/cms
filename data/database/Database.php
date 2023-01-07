@@ -25,6 +25,15 @@ class Database
     }
 
     /**
+     * Получаем наименование типа колонки 
+     */
+    public static function getTypeFromString($typeFromString)
+    {
+        $pattern = '[\((0-9)+\)]';
+        return mb_ereg_replace($pattern, '', $typeFromString);
+    }
+
+    /**
      * Существует ли таблица.
      * Если таблица не существует то возвращает пустое значение (в прямом смысле этого слова).
      * Иначе возвращает 1.
@@ -64,21 +73,10 @@ class Database
     {
         $sql = "CREATE TABLE " . $tableName . " (";
         foreach ($columns as $column) {
-            switch ($column['type']) {
-                case 'serial':
-                    if ($column != end($columns)) {
-                        $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'] . ", ";
-                    } else {
-                        $sql .= $column['name'] . " " . $column['type'] . " " . $column['primaryKey'];
-                    }
-                    break;
-                case 'varchar':
-                    if ($column != end($columns)){
-                        $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'] . ", ";
-                    } else {
-                        $sql .= $column['name'] . " " . $column['type'] . "(". $column['size'] .")" . " " . $column['notNull'];
-                    }
-                    break;
+            if ($column != end($columns)) {
+                $sql .= $column . ", ";
+            } else {
+                $sql .= $column;
             }
         }
         $sql .=  ");";
@@ -96,13 +94,12 @@ class Database
         $sql = "ALTER TABLE "  . $tableName;
         foreach ($columns as $column) {
             if ($column != end($columns)) {
-                $sql .= " ADD COLUMN " . $column['name'] . " " .
-                    $column['type'] . "(" . $column['size'] . "), ";
+                $sql .= " ADD COLUMN " . $column . ", ";
             } else {
-                $sql .= " ADD COLUMN " . $column['name'] . " " .
-                    $column['type'] . "(" . $column['size'] . "); ";
+                $sql .= " ADD COLUMN " . $column;
             }
         }
+        $sql .=  ";";
         return $sql;
     }
 

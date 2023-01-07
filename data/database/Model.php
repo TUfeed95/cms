@@ -1,31 +1,63 @@
 <?php
 class Model
 {
-    public string $tableName;
+    /**
+     * Наименование колонки
+     */
+    private $getColumnName = '';
+    /**
+     * Наименование таблицы
+     */
+    public $getTableName = '';
+    /**
+     * Тип поля в таблице
+     */
+    private $getTypeColumn = '';
+    /**
+     * Не нулевое значение поля
+     */
+    private $getNotNull = '';
+    /**
+     * Уникальные значения поля
+     */
+    private $getPrimaryKey = '';
+
+    /**
+     * @param string $tableName Наименование таблицы
+     */
+    function __construct($tableName)
+    {
+        $this->getTableName = $tableName;
+    }
+
+    private function clearParams()
+    {
+        $this->getPrimaryKey = '';
+        $this->getNotNull = '';
+        $this->getTableName = '';
+        $this->getTypeColumn = '';
+    }
 
     /**
      * Формируем массив с данными о колонках
-     * @param $columnName
-     * @param $typeColumn
-     * @param $size
-     * @param $primaryKey
-     * @param $notNull
-     * @return array
+     * @param $columnName Наименование колонки
+     * @return string
      */
-    public function column($columnName, $typeColumn, $size=null, $primaryKey=null, $notNull=null): array
+    public function column($columnName)
     {
-        return [
-            'name' => $columnName,
-            'type' => $typeColumn,
-            'size' => $size,
-            'primaryKey' => $primaryKey,
-            'notNull' => $notNull,
-        ];
-    }
+        $this->getColumnName = $columnName;
+        $add = sprintf('%s %s %s %s', $this->getColumnName, $this->getTypeColumn, $this->getNotNull, $this->getPrimaryKey);
+        self::clearParams();
 
-    public function tableName(): string
-    {
-        return $this->tableName;
+        return $add;
+        /** 
+        *return [
+        *    'name' => $this->getColumnName,
+        *    'type' => $this->getTypeColumn,
+        *    'primaryKey' => $this->getPrimaryKey,
+        *   'notNull' => $this->getNotNull,
+        *]; 
+        */
     }
 
     /**
@@ -33,19 +65,18 @@ class Model
      * 
      * Типы smallint, integer, и bigint хранят целые числа, то есть числа без дробных частей, различных диапазонов. 
      * Попытки сохранить значения за пределами допустимого диапазона приведут к ошибке.
+     * По умолчанию INTEGER
      * 
      * @param string $type Тип целочисленных данных
-     * @return string
      */
-    public function integer($type = null): string
+    public function integer($type = 'INTEGER')
     {
-        switch ($type) {
-            case 'smallint':
-                return $type;
-            case 'bigint':
-                return $type;
-            default:
-                return 'integer';
+        switch (strtoupper($type)) {
+            case 'SMALLINT':
+            case 'BIGINT':
+            case 'INTEGER':
+                $this->getTypeColumn = strtoupper($type);
+                return $this;
         }
     }
 
@@ -59,7 +90,7 @@ class Model
     public function numeric($precision = 0, $scale = 0) 
     {
         if ($precision >= 0 && $scale >= 0) {
-            return sprintf('numeric(%s, %s)', $precision, $scale);
+            return $this->getTypeColumn =  sprintf('NUMERIC(%s, %s)', $precision, $scale);
         }
     }
 
@@ -71,9 +102,65 @@ class Model
     public function real($doublePrecision = false) 
     {
         if (!$doublePrecision) {
-            return 'real';
+            $this->getTypeColumn = 'REAL';
+            return $this;
         } else {
-            return 'double precision';
+            $this->getTypeColumn ='DOUBLE PRECISION';
+            return $this;
         }
+    }
+
+    /**
+     * Типы данных small serial, serial и bigserial.
+     * 
+     * @param string $type Тип данных
+     */
+    public function serial($type)
+    {
+        switch (strtoupper($type)) {
+            case 'SMALSERIAL':
+            case 'SERIAL':
+            case 'BIGSERIAL':
+                $this->getTypeColumn = strtoupper($type);
+                return $this;
+        }
+    }
+
+    /**
+     * Символьный тип. Принимает псевдоним типа: varchar, char и text.
+     * 
+     * @param string $type Псевдоним типа: varchar, char и text.
+     * @param integer $size Ограничение по кол-ву символов (по умолчанию 255). Игнорируется при $type = 'text'
+     */
+    public function character($type, $size = 255)
+    {
+        if (!is_null($size) && strtoupper($type) !== 'TEXT'){
+            switch (strtoupper($type)) {
+                case 'VARCHAR':
+                case 'CHAR':
+                    $this->getTypeColumn = sprintf('%s(%s)', strtoupper($type), $size);
+                    return $this;
+            }
+        } else {
+            $this->getTypeColumn = sprintf('TEXT');
+            return $this;
+        }
+    }
+
+    /**
+     * Уникальное значение
+     */
+    public function primaryKey()
+    {
+        $this->getPrimaryKey = 'PRIMARY KEY';
+        return $this;
+    }
+    /**
+     * Не нулевое значение
+     */
+    public function isNotNull() 
+    {
+        $this->getNotNull = 'NOT NULL';
+        return $this;
     }
 }

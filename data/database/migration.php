@@ -65,15 +65,16 @@ class Migration
         foreach ($models as $model) {
             $modelClass = new ReflectionClass(basename($model, '.php')); // получаем класс модели
             $modelClassColumns = $modelClass->newInstanceArgs(); // создаем экземпляр класса модели
-            $modelClassColumnsArray = $modelClassColumns->columns(); // вызываем метод класса модели
+            $modelClassColumnsArray = $modelClassColumns->up(); // вызываем метод класса модели
             $this->tableName = $modelClassColumns->tableName; // получем наименование таблицы модели
             $query = self::createQuery($modelClassColumnsArray); // получем сгенерированный sql запрос
+            print_r($modelClassColumnsArray);
             // если запрос не пустой
             if (!is_null($query)) {
                 echo "  => Найдена модель: " . basename($model, ".php") . "\n";
                 // генерация случайных шестнадцатеричных строк, для уникальности имени файла миграции
                 // для более случайной генерции добавляем имя модели, иначе если создается несколько файлов миграций с одинаковым именем
-                $rangeText = substr(md5('327CH4jHISdwJ77F' . basename($model, '.php')), 0, 10); 
+                $rangeText = substr(md5('327CH4jHISdwJ77F' . basename($model, '.php')), 0, 10);
                 // имя файла миграции, сотоит из текущей даты, времени и случайной строки
                 $nameFileMigration = $dateTime->format('Y_m_d_his') . "_" . $rangeText . ".sql";
                 try {
@@ -126,7 +127,7 @@ class Migration
         // сравниваем миграции в таблицы и в директории
         $allFilesName = [];
         foreach ($allFiles as $fileName) {
-                $allFilesName[] = basename($fileName);
+            $allFilesName[] = basename($fileName);
         }
         //print_r('----->');
         //print_r($allFilesName);
@@ -179,8 +180,9 @@ class Migration
         if ($valueCheckTable['exists']) {
             // формируем массив с наименованием колонок из модели
             $nameColumns = [];
-            foreach ($listColumns as $column) {
-                $nameColumns[] = $column['name']; // массив с наименованием колонок из модели
+            $getColumnNamesFromArrayKeys = array_keys($listColumns);
+            foreach ($getColumnNamesFromArrayKeys as $column) {
+                $nameColumns[] = $column; // массив с наименованием колонок из модели
             }
             // сравниваем колонки текушей таблицы и модели и получаем разницу
             $addColumns = [];
@@ -197,15 +199,16 @@ class Migration
                 // если в модели колонок больше, чем в базе, то добавляем...
                 if (count($nameColumns) > $queryNameColumns->rowCount()) {
                     $columnRows = [];
-                    foreach ($listColumns as $columns) {
-                        // добавляем только те колонки которых нет в текущей таблице.
-                        if (in_array($columns['name'], $addColumns)) {
+                    foreach ($listColumns as $key => $columns) {
+                        // ...только те колонки которых нет в текущей таблице,...
+                        if (in_array($key, $addColumns)) {
                             $columnRows[] = $columns;
                         }
+                        
                     }
                     $sql = Database::addColumns($this->tableName, $columnRows);
                     // ...иначе удаляем
-                } else if (count($nameColumns) < $queryNameColumns->rowCount()){
+                } else if (count($nameColumns) < $queryNameColumns->rowCount()) {
                     $columnRows = [];
                     // удаляем колонки которых нет в модели, для этого формируем массив с наименованием столбцов из базы
                     foreach ($addColumns as $column) {
@@ -221,5 +224,4 @@ class Migration
         }
         return $sql;
     }
-
 }

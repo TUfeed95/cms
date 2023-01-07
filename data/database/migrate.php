@@ -6,7 +6,7 @@ $migrations = new Migration();
 
 // создаем файл загрузки моделей
 $classNames = $migrations->getFiles('/models', '*.php', dirname(__DIR__));
-$migrations->createMigrationFiles($classNames);
+$migrations->createLoadClassesFile($classNames);
 
 try {
     $migrations->createMigrationFiles();

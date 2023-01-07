@@ -1,16 +1,17 @@
 <?php
 
-class Users extends Model
+class Users
 {
-    public string $tableName;
-    public function columns(): array
+    public $tableName;
+
+    public function up(): array
     {
-        $dbModel = new Model();
-        $this->tableName = $dbModel->tableName = 'users';
+        $dbModel = new Model('users');
+        $this->tableName = $dbModel->getTableName;
+        
         return [
-            "id" => $dbModel->column('id', 'serial', null, 'PRIMARY KEY'),
-            "name" => $dbModel->column('name', 'varchar', 255, false, 'NOT NULL'),
-            "name" => $dbModel->column('name', self::real(true), 255, false, 'NOT NULL'),
+            "id" => $dbModel->serial('serial')->isNotNull()->primaryKey()->column('id'),
+            "name" => $dbModel->character('varchar', 40)->isNotNull()->column('name'),
         ];
     }
 }
