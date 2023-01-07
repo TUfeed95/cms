@@ -48,6 +48,18 @@ class Database
         $stmt->execute();
         return $stmt;
     }
+    /**
+     * Список всех таблиц в базе
+     */
+    public static function showTables()
+    {
+        $conn = self::connection();
+        $query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'";
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return $tables;
+    }
 
     /**
      * Получаем колонки переданной таблицы
@@ -119,6 +131,12 @@ class Database
                 $sql .= " DROP COLUMN " . $column;
             }
         }
+        return $sql;
+    }
+
+    public static function removeTable($table)
+    {
+        $sql = "DROP TABLE " . $table;
         return $sql;
     }
 

@@ -11,8 +11,8 @@ class Migration
 
     /**
      * Получаем файлы
-     * @param $folder
-     * @param $fileExtensions
+     * @param $folder Папка в которой нужно искать файлы
+     * @param $fileExtensions Расширение файла 
      * @param $dirname
      * @return array|false
      */
@@ -61,6 +61,25 @@ class Migration
         $models = self::getFiles('/models', '*.php', dirname(__DIR__));
         //print_r($models);
         require_once 'loadModels.php'; // загружаем здесь, что бы не было ошибки, при котрой отсутсвует загруженный класс модели
+
+        $tables = Database::showTables(); // получаем текущие таблицы из базы данных
+        $modelsName  = [];
+        foreach ($models as $model) {
+            $modelsName[] = strtolower(basename($model, '.php'));
+        }
+        // сравниваем модели и таблицы из базы
+        $diffTables = array_diff($tables, $modelsName);
+        // если есть в базе есть таблицы которых нет в модлеи то удаляем, и начем создаем или обновляем
+        if ($diffTables) {
+            foreach ($diffTables as $table) {
+                if ($table !== self::DB_MIGRATE_VERSIONS) {
+                    echo "  => Найдены удаленные модели: " . $table . "\n";
+                    $query = Database::removeTable($table);
+                    $nameFileMigration = self::generateFileName($dateTime);
+                    self::createFile($query, $nameFileMigration);
+                }
+            }
+        }
         // обходим модели и создаем файлы миграций
         foreach ($models as $model) {
             $modelClass = new ReflectionClass(basename($model, '.php')); // получаем класс модели
@@ -68,22 +87,36 @@ class Migration
             $modelClassColumnsArray = $modelClassColumns->up(); // вызываем метод класса модели
             $this->tableName = $modelClassColumns->tableName; // получем наименование таблицы модели
             $query = self::createQuery($modelClassColumnsArray); // получем сгенерированный sql запрос
-            print_r($modelClassColumnsArray);
             // если запрос не пустой
             if (!is_null($query)) {
                 echo "  => Найдена модель: " . basename($model, ".php") . "\n";
-                // генерация случайных шестнадцатеричных строк, для уникальности имени файла миграции
-                // для более случайной генерции добавляем имя модели, иначе если создается несколько файлов миграций с одинаковым именем
-                $rangeText = substr(md5('327CH4jHISdwJ77F' . basename($model, '.php')), 0, 10);
-                // имя файла миграции, сотоит из текущей даты, времени и случайной строки
-                $nameFileMigration = $dateTime->format('Y_m_d_his') . "_" . $rangeText . ".sql";
-                try {
-                    file_put_contents(self::getFolder('/migrations', dirname(__FILE__)) . '/' . $nameFileMigration, $query);
-                    echo "  => Создан файл миграции: \033[33m" . $nameFileMigration . "\033[0m\n";
-                } catch (Exception $exception) {
-                    echo "  => Ошибка при создании файла миграции: " . $exception  . "\n";
-                }
+                $nameFileMigration = self::generateFileName($dateTime);
+                self::createFile($query, $nameFileMigration);
             }
+        }
+    }
+
+    /**
+     * Генерация имени фала миграции на основе текущей даты, имени модлеи и строки из случаного набора символов
+     */
+    public function generateFileName($dateTime)
+    {
+        // генерация случайных шестнадцатеричных строк, для уникальности имени файла миграции
+        // для более случайной генерции добавляем имя модели, иначе если создается несколько файлов миграций с одинаковым именем
+        $rangeText = substr(md5(rand()), 0, 7);
+        // имя файла миграции, сотоит из текущей даты, времени и случайной строки
+        $fileNameMigration = $dateTime->format('Y_m_d_his') . "_" . $rangeText . ".sql";
+
+        return $fileNameMigration;
+    }
+
+    public function createFile($query, $nameFileMigration)
+    {
+        try {
+            file_put_contents(self::getFolder('/migrations', dirname(__FILE__)) . '/' . $nameFileMigration, $query);
+            echo "  => Создан файл миграции: \033[33m" . $nameFileMigration . "\033[0m\n";
+        } catch (Exception $exception) {
+            echo "  => Ошибка при создании файла миграции: " . $exception  . "\n";
         }
     }
 
@@ -189,11 +222,16 @@ class Migration
             if (count($nameColumns) > count($queryAllNameColumns)) {
                 // если в модели есть новые столбцы
                 $addColumns = array_diff($nameColumns, $queryAllNameColumns);
+                echo "!!!!!!!!!!!!!!!!\n";
+                print_r($addColumns);
             } else {
                 // если в модели были удалены столбцы
                 $addColumns = array_diff($queryAllNameColumns, $nameColumns);
+                echo "----------------\n";
+                print_r($addColumns);
             }
             // если есть разница
+
             if ($addColumns) {
                 // формируем условие по которому определяем добавляем или удаляем колонки из таблицы.
                 // если в модели колонок больше, чем в базе, то добавляем...
@@ -204,7 +242,6 @@ class Migration
                         if (in_array($key, $addColumns)) {
                             $columnRows[] = $columns;
                         }
-                        
                     }
                     $sql = Database::addColumns($this->tableName, $columnRows);
                     // ...иначе удаляем
@@ -216,6 +253,7 @@ class Migration
                     }
                     $sql = Database::removeColumns($this->tableName, $columnRows);
                 }
+                // TODO придумать как проверять изменения колонок 
             } else {
                 return null;
             }
@@ -223,5 +261,10 @@ class Migration
             $sql = Database::createTable($this->tableName, $listColumns);
         }
         return $sql;
+    }
+
+    public function createQuery2()
+    {
+        $sql = '';
     }
 }
