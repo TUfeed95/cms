@@ -196,6 +196,7 @@ class Migration
      */
     public function createQuery(array $listColumns): ?string
     {
+        // TODO переписать функцию createQuery. 
         $sql = '';
 
         // получаем текущее состояние таблицы
